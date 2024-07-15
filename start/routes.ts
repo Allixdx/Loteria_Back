@@ -15,10 +15,10 @@ Route.post('/login', 'AuthController.login')
 
 
 Route.group(() => {
-  Route.post('/create-room', 'RoomsController.create')
-  Route.post('/join-room', 'RoomsController.join')
-  Route.post('/start-game', 'RoomCsontroller.start')
-  Route.post('/cantar-carta', 'RoomsController.cantar')
-  Route.post('/anunciar-triunfo', 'RoomsController.announceWin')
-  Route.post('/close-room', 'RoomsController.closeRoom')
-}).middleware('auth')
+  Route.post('/rooms', 'RoomsController.create'); // Crear sala
+  Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala
+  Route.post('/rooms/start', 'RoomsController.start'); // Iniciar partida
+  Route.post('/rooms/cantar', 'RoomsController.cantar'); // Cantar carta
+  Route.post('/rooms/announce-win', 'RoomsController.announceWin'); // Anunciar victoria
+  Route.post('/rooms/close', 'RoomsController.closeRoom'); // Cerrar sala
+}).middleware('auth'); 

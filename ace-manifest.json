@@ -1,5 +1,17 @@
 {
   "commands": {
+    "cargar:cartas": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CargarCartas",
+      "commandName": "cargar:cartas",
+      "description": "Carga cartas desde imágenes",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",
