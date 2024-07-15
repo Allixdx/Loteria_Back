@@ -1,22 +1,53 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
-import Hash from '@ioc:Adonis/Core/Hash'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
 
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
-    const data = request.only(['name', 'lastname', 'email', 'password'])
-    const hashedPassword = await Hash.make(data.password)
-    const user = await User.create({ ...data, password: hashedPassword })
-    return response.created(user)
-  }
-
-  public async login({ request, auth, response }: HttpContextContract) {
-    const { email, password } = request.only(['email', 'password'])
     try {
-      const token = await auth.use('api').attempt(email, password)
-      return token
-    } catch {
-      return response.unauthorized('Invalid credentials')
+        const validationSchema = schema.create({
+            name: schema.string({}, [rules.required()]),
+            lastname: schema.string({}, [rules.required()]),
+            email: schema.string({}, [
+                rules.email(),
+                rules.unique({ table: 'users', column: 'email' }),
+                rules.required(),
+            ]),
+            password: schema.string({}, [
+                rules.minLength(8),
+                rules.required(),
+            ]),
+        })
+        const data = await request.validate({
+            schema: validationSchema,
+        })
+        const user = await User.create(data)
+        return { user }
+    } catch (error) {
+        return response.badRequest(error.messages)
     }
-  }
+}
+
+public async login({ request, response, auth }: HttpContextContract) {
+    try {
+        const validationSchema = schema.create({
+            email: schema.string({}, [
+                rules.email(),
+                rules.required(),
+            ]),
+            password: schema.string({}, [
+                rules.minLength(8),
+                rules.required(),
+            ]),
+        })
+        const { email, password } = await request.validate({
+            schema: validationSchema,
+        })
+        const token = await auth.use('api').attempt(email, password)
+        return { token }
+    } catch (error) {
+        return response.badRequest('Invalid credentials')
+    }
+}
+  
 }
