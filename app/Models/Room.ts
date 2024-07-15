@@ -15,7 +15,7 @@ export default class Room extends BaseModel {
   public organizadorID: number
 
   @column()
-  public estado: 'ongoing' | 'closed'
+  public estado: 'pending' | 'ongoing' | 'closed'
 
   @column()
   public rondas: number
