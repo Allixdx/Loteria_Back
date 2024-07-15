@@ -11,8 +11,8 @@ export default class Room extends BaseModel {
   @column()
   public codigo: string
 
-  @column()
-  public organizador_id: number // Cambiado a organizador_id
+  @column({ columnName: 'organizador_id' })
+  public organizadorId: number
 
   @column()
   public estado: 'ongoing' | 'closed'
@@ -27,17 +27,17 @@ export default class Room extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(() => User, {
-    foreignKey: 'organizador_id' // Asegúrate de que este también coincida
+    foreignKey: 'organizador_id'
   })
   public organizador: BelongsTo<typeof User>
 
   @hasMany(() => Player, {
-    foreignKey: 'roomID'
+    foreignKey: 'room_id'
   })
   public players: HasMany<typeof Player>
 
   @hasMany(() => Winner, {
-    foreignKey: 'roomID'
+    foreignKey: 'room_id'
   })
   public winners: HasMany<typeof Winner>
 }

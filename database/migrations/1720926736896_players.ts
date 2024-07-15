@@ -6,8 +6,8 @@ export default class Players extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('roomID').unsigned().references('id').inTable('rooms').onDelete('CASCADE')
-      table.integer('userID').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.integer('room_id').unsigned().references('id').inTable('rooms').onDelete('CASCADE')
+      table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
       table.timestamps(true)
     })
   }

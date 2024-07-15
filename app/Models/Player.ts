@@ -7,11 +7,11 @@ export default class Player extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
-  @column()
-  public roomID: number
+  @column({ columnName: 'room_id' })
+  public roomId: number
 
-  @column()
-  public userID: number
+  @column({ columnName: 'user_id' })
+  public userId: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -20,12 +20,12 @@ export default class Player extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(() => Room, {
-    foreignKey: 'roomID'
+    foreignKey: 'room_id'
   })
   public room: BelongsTo<typeof Room>
 
   @belongsTo(() => User, {
-    foreignKey: 'userID'
+    foreignKey: 'user_id'
   })
   public user: BelongsTo<typeof User>
 }

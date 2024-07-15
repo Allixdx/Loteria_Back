@@ -10,7 +10,7 @@ export default class RoomsController {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
     const room = await Room.create({
       codigo: code,
-      organizador_id: auth.user?.id,
+      organizadorId: auth.user?.id,
       estado: 'ongoing'
     })
     return response.created(room)
@@ -19,16 +19,30 @@ export default class RoomsController {
   public async join({ request, auth, response }: HttpContextContract) {
     const { codigo } = request.only(['codigo'])
     try {
+      if (!auth.user) {
+        return response.unauthorized('Usuario no autenticado');
+      }
       const room = await Room.findByOrFail('codigo', codigo)
-      await Player.create({ roomID: room.id, userID: auth.user?.id })
-      
+      if (room.estado === 'closed') {
+        return response.badRequest('La sala ya está cerrada');
+      }
+      const existingPlayer = await Player.query()
+        .where('room_id', room.id)
+        .andWhere('user_id', auth.user.id)
+        .first();
+      if (existingPlayer) {
+        return response.badRequest('Ya estás en esta sala');
+      }
+      await Player.create({ roomId: room.id, userId: auth.user?.id });
+
       // Emitir evento de jugador unido
-      Ws.io.to(room.codigo).emit('jugadorUnido', { userId: auth.user?.id, roomId: room.id })
-      return response.ok(room)
-    } catch {
-      return response.notFound('Room not found')
+      Ws.io.to(room.codigo).emit('jugadorUnido', { userId: auth.user?.id, roomId: room.id });
+      return response.ok(room);
+    } catch (error) {
+      return response.notFound('Room not found');
     }
   }
+
 
   public async start({ request, response }: HttpContextContract) {
     const { roomId } = request.only(['roomId'])
@@ -53,10 +67,10 @@ export default class RoomsController {
 
   public async announceWin({ request, response }: HttpContextContract) {
     const { roomId, ronda, userId } = request.only(['roomId', 'ronda', 'userId'])
-    const winner = await Winner.create({ roomID: roomId, ronda, userID: userId })
+    const winner = await Winner.create({ roomId: roomId, ronda, userId: userId })  // Cambios aquí
 
     // Emitir evento de anuncio de triunfo
-    Ws.io.to(winner.roomID.toString()).emit('triunfoAnunciado', { roomId, ronda, userId })
+    Ws.io.to(winner.roomId.toString()).emit('triunfoAnunciado', { roomId, ronda, userId })
     return response.ok(winner)
   }
 
