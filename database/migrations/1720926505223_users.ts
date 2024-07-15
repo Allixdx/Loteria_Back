@@ -1,6 +1,6 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
-export default class extends BaseSchema {
+export default class Users extends BaseSchema {
   protected tableName = 'users'
 
   public async up() {
@@ -10,11 +10,6 @@ export default class extends BaseSchema {
       table.string('lastname', 100).notNullable()
       table.string('email', 100).notNullable().unique()
       table.string('password', 180).notNullable()
-      table.string('remember_me_token').nullable()
-
-      /**
-       * Uses timestampz for PostgreSQL and DATETIME2 for MSSQL
-       */
       table.timestamp('created_at', { useTz: true }).notNullable()
       table.timestamp('updated_at', { useTz: true }).notNullable()
     })

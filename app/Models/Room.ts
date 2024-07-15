@@ -12,10 +12,10 @@ export default class Room extends BaseModel {
   public codigo: string
 
   @column()
-  public organizadorID: number
+  public organizador_id: number // Cambiado a organizador_id
 
   @column()
-  public estado: 'pending' | 'ongoing' | 'closed'
+  public estado: 'ongoing' | 'closed'
 
   @column()
   public rondas: number
@@ -27,7 +27,7 @@ export default class Room extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(() => User, {
-    foreignKey: 'organizadorID'
+    foreignKey: 'organizador_id' // Asegúrate de que este también coincida
   })
   public organizador: BelongsTo<typeof User>
 

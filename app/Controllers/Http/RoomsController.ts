@@ -7,11 +7,11 @@ import Ws from 'App/Services/Ws'
 
 export default class RoomsController {
   public async create({ auth, response }: HttpContextContract) {
-    const code = Math.random().toString(36).substr(2, 8)
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
     const room = await Room.create({
       codigo: code,
-      organizadorID: auth.user?.id,
-      estado: 'pending'
+      organizador_id: auth.user?.id,
+      estado: 'ongoing'
     })
     return response.created(room)
   }
