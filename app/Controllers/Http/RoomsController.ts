@@ -35,11 +35,17 @@ export default class RoomsController {
         .where('room_id', room.id)
         .andWhere('user_id', auth.user.id)
         .first();
-      if (existingPlayer) {
-        return response.badRequest('Ya estás en esta sala');
+      if (!existingPlayer) {
+        await Player.create({ roomId: room.id, userId: auth.user?.id });
       }
-      await Player.create({ roomId: room.id, userId: auth.user?.id });
-      Ws.io.to(room.codigo).emit('jugadorUnido', { userId: auth.user?.id, roomId: room.id });
+      console.log(`Emitiendo jugador unido: ${auth.user?.id} a sala: ${room.codigo}`);
+      const userData = {
+        id: auth.user?.id,
+        name: auth.user?.name,
+        email: auth.user?.email,
+      };
+      console.log(userData)
+      Ws.io.to(room.codigo).emit('jugadorUnido', { user: userData, roomId: room.id });
       return response.ok(room);
     } catch (error) {
       console.error('Error joining room:', error);
