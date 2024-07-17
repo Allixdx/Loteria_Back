@@ -10,9 +10,4 @@ Ws.io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id)
     })
-
-    socket.on('joinRoom', (data) => {
-        console.log(`Usuario se unió a la sala: ${data.codigo}`);
-    });
-
 })
