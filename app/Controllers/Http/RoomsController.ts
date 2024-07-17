@@ -40,13 +40,13 @@ export default class RoomsController {
       }
       console.log(`Emitiendo jugador unido: ${auth.user?.id} a sala: ${room.codigo}`);
       const userData = {
-        id: auth.user?.id,
+        room: room.id,
+        userid: auth.user?.id,
         name: auth.user?.name,
         email: auth.user?.email,
       };
       console.log(userData)
-      Ws.io.to(room.codigo).emit('jugadorUnido', { user: userData, roomId: room.id });
-      return response.ok(room);
+      return response.ok(userData);
     } catch (error) {
       console.error('Error joining room:', error);
       return response.notFound('Room not found');

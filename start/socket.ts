@@ -10,4 +10,9 @@ Ws.io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id)
     })
+
+    socket.on('jugadorUnido', (data) => {
+        console.log('Jugador unido:', data);
+        Ws.io.emit('jugadorUnido', data);
+      });
 })
