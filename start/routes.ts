@@ -15,6 +15,7 @@ Route.post('/login', 'AuthController.login')
 
 
 Route.group(() => {
+  Route.get('/index', 'RoomsController.index');
   Route.post('/rooms', 'RoomsController.create'); // Crear sala
   Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala
   Route.post('/rooms/start', 'RoomsController.start'); // Iniciar partida

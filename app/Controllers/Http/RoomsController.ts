@@ -4,12 +4,49 @@ import Player from 'App/Models/Player';
 import Winner from 'App/Models/Winner';
 import Card from 'App/Models/Card';
 import Ws from 'App/Services/Ws';
+import User from 'App/Models/User';
 
 export default class RoomsController {
   private cartasBarajadas: Card[] = [];
   private indiceCarta: number = 0;
   private cartasCantadas: Card[] = [];
-  private tablasJugadores: { [key: string]: Card[] } = {}; // Almacena las tablas de los jugadores en memoria
+  private tablasJugadores: { [key: string]: Card[] } = {};
+
+
+  public async index({ request, auth, response }: HttpContextContract) {
+    const { roomId } = request.only(['roomId']);
+    console.log('Room ID:', roomId);
+    
+    try {
+        if (!auth.user) {
+            return response.unauthorized('Usuario no autenticado');
+        }
+
+        const players = await Player.query()
+            .where('room_id', roomId);
+
+        if (players.length === 0) {
+            return response.ok([]);
+        }
+
+        const playerIds = players.map(player => player.userId);
+
+        const users = await User.query()
+            .whereIn('id', playerIds);
+
+        return response.ok(users);
+    } catch (error) {
+        console.error('Error obteniendo usuarios en la sala:', error);
+        return response.notFound('Sala no encontrada');
+    }
+}
+
+
+
+
+
+
+
 
   public async create({ auth, response }: HttpContextContract) {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
