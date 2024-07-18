@@ -37,18 +37,19 @@ Ws.io.on('connection', (socket) => {
         }
 
 
-            if (!rooms[room][socket.id]) {
-                // Unir el socket a la sala específica
-                socket.join(room);
-                // Agregar el jugador a la sala
+        if (!rooms[room][socket.id]) {
+            // Unir el socket a la sala específica
+            socket.join(room);
+            // Agregar el jugador a la sala
+            if (rooms[room]['anfitrion'].email !== email) {
                 rooms[room][socket.id] = { userId, name, email };
-
-                Ws.io.to(room).emit('actualizarJugadores', Object.values(rooms[room]));
-            } else {
-                console.log(`El jugador ${name} ya está en la sala ${room}`);
             }
-        
 
+
+            Ws.io.to(room).emit('actualizarJugadores', Object.values(rooms[room]));
+        } else {
+            console.log(`El jugador ${name} ya está en la sala ${room}`);
+        }
         console.log(`Room: ${room} - Players:`, rooms[room]);
     });
 });
