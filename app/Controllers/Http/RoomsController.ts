@@ -155,7 +155,6 @@ export default class RoomsController {
     const room = await Room.findOrFail(roomId);
     room.estado = 'closed';
     await room.save();
-    Ws.io.to(room.codigo).emit('salaCerrada', room);
     return response.ok(room);
   }
 

@@ -52,4 +52,12 @@ Ws.io.on('connection', (socket) => {
         }
         console.log(`Room: ${room} - Players:`, rooms[room]);
     });
+
+    //sala cerrada
+    socket.on('salaCerrada', (data) => {
+        console.log('Sala cerrada:', data);
+        const { roomId } = data;
+        Ws.io.to(roomId).emit('salaCerrada', { roomId });
+    });
+
 });
