@@ -11,12 +11,21 @@ Ws.io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
+        
+        // Buscar y eliminar la sala si el anfitrión se desconecta
         for (const room in rooms) {
-            if (rooms[room][socket.id]) {
+            if (rooms[room]['anfitrion'] && rooms[room]['anfitrion'].socketId === socket.id) {
+                delete rooms[room];
+                console.log(`Sala ${room} eliminada porque el anfitrión se desconectó.`);
+                Ws.io.emit('salaCerrada', { roomId: room });
+                break;
+            } else if (rooms[room][socket.id]) {
                 delete rooms[room][socket.id];
                 Ws.io.to(room).emit('actualizarJugadores', Object.values(rooms[room]));
                 if (Object.keys(rooms[room]).length === 0) {
                     delete rooms[room];
+                    console.log(`Sala ${room} eliminada porque no quedan jugadores.`);
+                    Ws.io.emit('salaCerrada', { roomId: room });
                 }
                 break;
             }
@@ -33,9 +42,8 @@ Ws.io.on('connection', (socket) => {
         }
 
         if (!rooms[room]['anfitrion']) {
-            rooms[room]['anfitrion'] = { userId, name, email };
+            rooms[room]['anfitrion'] = { userId, name, email, socketId: socket.id };
         }
-
 
         if (!rooms[room][socket.id]) {
             // Unir el socket a la sala específica
@@ -45,7 +53,6 @@ Ws.io.on('connection', (socket) => {
                 rooms[room][socket.id] = { userId, name, email };
             }
 
-
             Ws.io.to(room).emit('actualizarJugadores', Object.values(rooms[room]));
         } else {
             console.log(`El jugador ${name} ya está en la sala ${room}`);
@@ -53,11 +60,13 @@ Ws.io.on('connection', (socket) => {
         console.log(`Room: ${room} - Players:`, rooms[room]);
     });
 
-    //sala cerrada
+    // Manejar cuando se cierra una sala específica
     socket.on('salaCerrada', (data) => {
         console.log('Sala cerrada:', data);
         const { roomId } = data;
         Ws.io.to(roomId).emit('salaCerrada', { roomId });
+        delete rooms[roomId];
+        console.log(`Sala ${roomId} eliminada.`);
     });
 
 });
