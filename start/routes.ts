@@ -12,6 +12,9 @@ Route.post('/login', 'AuthController.login')
 Route.group(() => {
   Route.get('/user', 'AuthController.getUser');
   Route.get('/index', 'RoomsController.index');
+  Route.get('/cartas', 'RoomsController.obtenerCartas');
+
+  
   Route.post('/rooms', 'RoomsController.create'); // Crear sala
   Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala
   Route.post('/rooms/start', 'RoomsController.start'); // Iniciar partida

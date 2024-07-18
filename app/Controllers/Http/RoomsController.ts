@@ -181,4 +181,9 @@ export default class RoomsController {
     const cartasBarajadas = this.shuffle([...this.cartasBarajadas]);
     return cartasBarajadas.slice(0, 16);
   }
+
+  public async obtenerCartas({}: HttpContextContract) {
+    const cartas = await Card.query();
+    return cartas;
+  }
 }
