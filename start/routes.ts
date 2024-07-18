@@ -9,12 +9,8 @@ Route.get('/', async () => {
 Route.post('/register', 'AuthController.register')
 Route.post('/login', 'AuthController.login')
 
-
-
-
-
-
 Route.group(() => {
+  Route.get('/user', 'AuthController.getUser');
   Route.get('/index', 'RoomsController.index');
   Route.post('/rooms', 'RoomsController.create'); // Crear sala
   Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala

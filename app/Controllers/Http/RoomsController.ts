@@ -16,37 +16,30 @@ export default class RoomsController {
   public async index({ request, auth, response }: HttpContextContract) {
     const { roomId } = request.only(['roomId']);
     console.log('Room ID:', roomId);
-    
+
     try {
-        if (!auth.user) {
-            return response.unauthorized('Usuario no autenticado');
-        }
+      if (!auth.user) {
+        return response.unauthorized('Usuario no autenticado');
+      }
 
-        const players = await Player.query()
-            .where('room_id', roomId);
+      const players = await Player.query()
+        .where('room_id', roomId);
 
-        if (players.length === 0) {
-            return response.ok([]);
-        }
+      if (players.length === 0) {
+        return response.ok([]);
+      }
 
-        const playerIds = players.map(player => player.userId);
+      const playerIds = players.map(player => player.userId);
 
-        const users = await User.query()
-            .whereIn('id', playerIds);
+      const users = await User.query()
+        .whereIn('id', playerIds);
 
-        return response.ok(users);
+      return response.ok(users);
     } catch (error) {
-        console.error('Error obteniendo usuarios en la sala:', error);
-        return response.notFound('Sala no encontrada');
+      console.error('Error obteniendo usuarios en la sala:', error);
+      return response.notFound('Sala no encontrada');
     }
-}
-
-
-
-
-
-
-
+  }
 
   public async create({ auth, response }: HttpContextContract) {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
@@ -55,7 +48,8 @@ export default class RoomsController {
       organizadorId: auth.user?.id,
       estado: 'ongoing'
     });
-    return response.created(room);
+
+    return response.created({ id: room.id, room });
   }
 
   public async join({ request, auth, response }: HttpContextContract) {
