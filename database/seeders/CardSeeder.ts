@@ -6,7 +6,7 @@ import Card from 'App/Models/Card';
 
 export default class CardSeeder extends BaseSeeder {
   public async run () {
-    const cardsDirectory = path.join(__dirname, '..', '..', 'public', 'imagen');
+    const cardsDirectory = '/Users/macbookpro/Desktop/isra/imagen'
 
     try {
       const files = await fs.readdir(cardsDirectory);
