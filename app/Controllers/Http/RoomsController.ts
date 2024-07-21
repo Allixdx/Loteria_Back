@@ -90,23 +90,7 @@ export default class RoomsController {
     room.estado = 'ongoing';
     room.rondas += 1;
     await room.save();
-
-    const cartas = await Card.all();
-    this.cartasBarajadas = this.shuffle(cartas);
-    this.indiceCarta = 0;
-    this.cartasCantadas = []; // Reinicia el registro de cartas cantadas para la nueva ronda
-
-    // Obtener los jugadores de la sala
-    const jugadores = await Player.query().where('room_id', room.id);
-
-    // Asignar una tabla de 4x4 a cada jugador
-    for (const jugador of jugadores) {
-      const tabla = this.generarTabla();
-      this.tablasJugadores[jugador.userId.toString()] = tabla; // Guardar la tabla en memoria
-      // Emitir un evento a cada jugador con su tabla
-      Ws.io.to(jugador.userId.toString()).emit('tablaAsignada', { tabla });
-    }
-
+    console.log(roomId)
     Ws.io.to(room.codigo).emit('partidaIniciada', room);
     return response.ok(room);
   }
@@ -156,30 +140,6 @@ export default class RoomsController {
     room.estado = 'closed';
     await room.save();
     return response.ok(room);
-  }
-
-  public async nuevaTabla({ auth, response }: HttpContextContract) {
-    if (!auth.user) {
-      return response.unauthorized('Usuario no autenticado');
-    }
-
-    const tabla = this.generarTabla();
-    this.tablasJugadores[auth.user.id.toString()] = tabla; // Actualizar la tabla del jugador en memoria
-    Ws.io.to(auth.user.id.toString()).emit('nuevaTabla', { tabla });
-    return response.ok({ tabla });
-  }
-
-  private shuffle(array: any[]): any[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  private generarTabla(): Card[] {
-    const cartasBarajadas = this.shuffle([...this.cartasBarajadas]);
-    return cartasBarajadas.slice(0, 16);
   }
 
   public async obtenerCartas({}: HttpContextContract) {

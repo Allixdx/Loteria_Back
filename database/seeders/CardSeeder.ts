@@ -3,9 +3,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import Card from 'App/Models/Card';
 
+
 export default class CardSeeder extends BaseSeeder {
   public async run () {
-    const cardsDirectory = path.join(__dirname, '../../app/images');
+    const cardsDirectory = path.join(__dirname, '..', '..', 'public', 'imagen');
 
     try {
       const files = await fs.readdir(cardsDirectory);
@@ -13,7 +14,7 @@ export default class CardSeeder extends BaseSeeder {
         const name = path.basename(file, path.extname(file));
         return Card.create({
           name: name,
-          url: `/app/images/${file}`
+          url: `assets/imagen/${file}`  // URL relativa desde la raíz pública
         });
       });
 
