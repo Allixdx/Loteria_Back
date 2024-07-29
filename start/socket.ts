@@ -67,6 +67,7 @@ function handleGameStart(data) {
     const { roomId } = data;
     if (rooms[roomId]) {
         Ws.io.to(roomId).emit('partidaIniciada', { roomId });
+        Ws.io.to(roomId).emit('actualizarJugadores', Object.values(rooms[roomId]));
     } else {
         console.log(`Sala ${roomId} no encontrada.`);
     }

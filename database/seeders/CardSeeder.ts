@@ -6,7 +6,7 @@ import Card from 'App/Models/Card';
 
 export default class CardSeeder extends BaseSeeder {
   public async run () {
-    const cardsDirectory = '/Users/macbookpro/Desktop/isra/imagen'
+    const cardsDirectory = '/Users/macbookpro/Desktop/isra/cheems'
 
     try {
       const files = await fs.readdir(cardsDirectory);
@@ -14,7 +14,7 @@ export default class CardSeeder extends BaseSeeder {
         const name = path.basename(file, path.extname(file));
         return Card.create({
           name: name,
-          url: `assets/imagen/${file}`  // URL relativa desde la raíz pública
+          url: `assets/cheems/${file}`  // URL relativa desde la raíz pública
         });
       });
 
