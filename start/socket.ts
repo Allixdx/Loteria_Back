@@ -84,6 +84,22 @@ function handleGameEnd(data) {
     }
 }
 
+function handleCardCalled(data) {
+    const { roomId, carta } = data;
+
+    if (rooms[roomId]) {
+        if (!rooms[roomId].cartasCantadas) {
+            rooms[roomId].cartasCantadas = [];
+        }
+        rooms[roomId].cartasCantadas.push(carta);
+
+        Ws.io.to(roomId).emit('cartaCantada', { carta });
+    } else {
+        console.log(`Sala ${roomId} no encontrada.`);
+    }
+}
+
+
 // Listener para las conexiones de socket
 Ws.io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
@@ -93,4 +109,6 @@ Ws.io.on('connection', (socket) => {
     socket.on('salaCerrada', (data) => handleRoomClose(data));
     socket.on('iniciarPartida', (data) => handleGameStart(data));
     socket.on('terminarPartida', (data) => handleGameEnd(data));
+    socket.on('cartaCantada', (data) => handleCardCalled(data));
+
 });
