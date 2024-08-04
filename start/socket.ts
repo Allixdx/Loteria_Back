@@ -99,6 +99,26 @@ function handleCardCalled(data) {
     }
 }
 
+function handleCheckCards(data) {
+    const { roomId, cartasMarcadas } = data;
+    if (rooms[roomId]) {
+        const cartasCantadas = rooms[roomId].cartasCantadas || [];
+
+        // Extrae solo los IDs de las cartas cantadas
+        const idsCartasCantadas = cartasCantadas.map(carta => carta.id);
+
+        // Verifica si todas las cartas marcadas están en las cartas cantadas
+        const todasCantadas = cartasMarcadas.every(cartaId => idsCartasCantadas.includes(cartaId));
+
+        Ws.io.to(roomId).emit('resultadoVerificacionCartas', { result: todasCantadas });
+    } else {
+        console.log(`Sala ${roomId} no encontrada.`);
+    }
+
+}
+
+
+
 
 // Listener para las conexiones de socket
 Ws.io.on('connection', (socket) => {
@@ -110,5 +130,5 @@ Ws.io.on('connection', (socket) => {
     socket.on('iniciarPartida', (data) => handleGameStart(data));
     socket.on('terminarPartida', (data) => handleGameEnd(data));
     socket.on('cartaCantada', (data) => handleCardCalled(data));
-
+    socket.on('verificarCartas', (data) => handleCheckCards(data));
 });
