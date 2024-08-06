@@ -90,8 +90,6 @@ export default class RoomsController {
     room.estado = 'ongoing';
     room.rondas += 1;
     await room.save();
-    console.log(roomId)
-    Ws.io.to(room.codigo).emit('partidaIniciada', room);
     return response.ok(room);
   }
 
@@ -111,28 +109,13 @@ export default class RoomsController {
   }
 
   public async announceWin({ request, response }: HttpContextContract) {
-    const { roomId, ronda, userId } = request.only(['roomId', 'ronda', 'userId']);
+    const { roomId, userId } = request.only(['roomId', 'userId']);
 
-    // Obtener la tabla del jugador desde la memoria
-    const tablaJugador = this.tablasJugadores[userId.toString()];
-
-    if (!tablaJugador) {
-      return response.badRequest('No se encontró la tabla del jugador');
-    }
-
-    // Convertir las IDs de las cartas cantadas a un conjunto para una comparación rápida
-    const cartasCantadasSet = new Set(this.cartasCantadas.map(carta => carta.id));
-
-    // Verificar que las cartas del jugador estén en las cartas cantadas
-    const victoria = tablaJugador.every(carta => cartasCantadasSet.has(carta.id));
-
-    if (victoria) {
-      const winner = await Winner.create({ roomId, ronda, userId });
-      Ws.io.to(roomId.toString()).emit('triunfoAnunciado', { roomId, ronda, userId });
-      return response.ok(winner);
-    }
-    return response.badRequest('No es una victoria válida');
-  }
+    const room = await Room.findOrFail(roomId);
+    const ronda = room.rondas;
+    const winner = await Winner.create({ roomId, ronda, userId });
+    return response.ok(winner);
+}
 
   public async closeRoom({ request, response }: HttpContextContract) {
     const { roomId } = request.only(['roomId']);
@@ -142,7 +125,7 @@ export default class RoomsController {
     return response.ok(room);
   }
 
-  public async obtenerCartas({}: HttpContextContract) {
+  public async obtenerCartas({ }: HttpContextContract) {
     const cartas = await Card.query();
     return cartas;
   }

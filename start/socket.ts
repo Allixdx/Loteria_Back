@@ -1,4 +1,6 @@
+import RoomsController from 'App/Controllers/Http/RoomsController';
 import Ws from 'App/Services/Ws';
+
 
 Ws.boot();
 const rooms = {};
@@ -99,8 +101,10 @@ function handleCardCalled(data) {
     }
 }
 
-function handleCheckCards(data) {
-    const { roomId, cartasMarcadas } = data;
+async function handleCheckCards(data) {
+    const { roomId, cartasMarcadas, socketId } = data;
+
+    // Verifica si la sala existe
     if (rooms[roomId]) {
         const cartasCantadas = rooms[roomId].cartasCantadas || [];
 
@@ -110,12 +114,43 @@ function handleCheckCards(data) {
         // Verifica si todas las cartas marcadas están en las cartas cantadas
         const todasCantadas = cartasMarcadas.every(cartaId => idsCartasCantadas.includes(cartaId));
 
+        if (todasCantadas) {
+            try {
+                // Obtén el userId del socketId directamente desde la sala
+                const player = rooms[roomId][socketId];
+                if (!player) {
+                    console.error('Jugador no encontrado en la sala');
+                    return;
+                }
+                const userId = player.userId;
+                const userName = player.name;
+
+                if (!userId) {
+                    console.error('ID de usuario no disponible');
+                    return;
+                }
+
+                // Llama a la función announceWin de tu controlador
+                const roomsController = new RoomsController();
+                const response = await roomsController.announceWin({
+                    request: { only: () => ({ roomId, userId }) },
+                    response: { ok: (winner) => winner }
+                } as any);
+
+                // Emite el evento de victoria con el nombre del usuario
+                Ws.io.to(roomId).emit('victoriaAnunciada', { roomId, userName });
+                console.log('Ganador anunciado:', response);
+            } catch (error) {
+                console.error('Error al anunciar el ganador:', error);
+            }
+        }
+
         Ws.io.to(roomId).emit('resultadoVerificacionCartas', { result: todasCantadas });
     } else {
         console.log(`Sala ${roomId} no encontrada.`);
     }
-
 }
+
 
 
 
