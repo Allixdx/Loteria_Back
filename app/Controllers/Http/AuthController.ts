@@ -3,6 +3,7 @@ import User from 'App/Models/User'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Room from 'App/Models/Room'
 import Winner from 'App/Models/Winner'
+import Database from '@ioc:Adonis/Lucid/Database'
 import Player from 'App/Models/Player'
 
 export default class AuthController {
@@ -121,5 +122,22 @@ export default class AuthController {
 
 
 
+      public async getRoomsWonByUser({ auth }: HttpContextContract) {
+        // Obtén el ID del usuario loggeado
+        const userId = auth.user?.id;
+    
+        if (!userId) {
+          return { error: 'Usuario no autenticado' };
+        }
+    
+        // Consulta SQL para obtener las salas ganadas por el usuario
+        const winners = await Database
+          .from('winners')
+          .join('rooms', 'winners.room_id', 'rooms.id')
+          .where('winners.user_id', userId)
+          .select('winners.id as winnerId', 'winners.room_id as roomId', 'rooms.codigo', 'winners.ronda', 'winners.created_at as createdAt', 'winners.updated_at as updatedAt');
+    
+        return winners;
+      }
     
 }

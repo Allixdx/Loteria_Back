@@ -20,6 +20,8 @@ Route.group(() => {
   Route.get('/players/:roomId', 'AuthController.getPlayersByRoom')
   Route.get('/winners/:roomId', 'AuthController.getWinnersByRoom')
 
+  Route.get('/rooms-won', 'AuthController.getRoomsWonByUser');
+
 
   Route.post('/rooms', 'RoomsController.create'); // Crear sala
   Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala
