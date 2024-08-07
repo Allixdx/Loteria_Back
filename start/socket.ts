@@ -81,6 +81,9 @@ function handleGameEnd(data) {
     const { roomId } = data;
     if (rooms[roomId]) {
         Ws.io.to(roomId).emit('partidaTerminada', { roomId });
+        if (rooms[roomId].cartasCantadas) {
+            rooms[roomId].cartasCantadas = [];
+        }
     } else {
         console.log(`Sala ${roomId} no encontrada.`);
     }
