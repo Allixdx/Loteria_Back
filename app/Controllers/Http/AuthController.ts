@@ -2,9 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Room from 'App/Models/Room'
-import Winner from 'App/Models/Winner'
 import Database from '@ioc:Adonis/Lucid/Database'
-import Player from 'App/Models/Player'
 
 export default class AuthController {
     public async register({ request, response }: HttpContextContract) {
@@ -66,78 +64,80 @@ export default class AuthController {
         }
     }
 
-
-
     public async getRoomsByOrganizador({ auth, response }: HttpContextContract) {
-    try {
-      // Obtén el ID del usuario logueado
-      const user = auth.user
-      if (!user) {
-        return response.status(401).json({ error: 'No autorizado' })
-      }
-      
-      // El ID del organizador es el ID del usuario logueado
-      const organizadorId = user.id
-      
-      // Obtén las salas del organizador
-      const rooms = await Room.query()
-        .where('organizador_id', organizadorId)
-        .select('id', 'codigo', 'organizador_id', 'rondas', 'created_at')
-      
-      return response.json(rooms)
-    } catch (error) {
-      console.error(error)
-      return response.status(500).json({ error: 'Error al obtener las salas' })
+        try {
+            // Obtén el ID del usuario logueado
+            const user = auth.user
+            if (!user) {
+                return response.status(401).json({ error: 'No autorizado' })
+            }
+
+            // El ID del organizador es el ID del usuario logueado
+            const organizadorId = user.id
+
+            // Obtén las salas del organizador
+            const rooms = await Room.query()
+                .where('organizador_id', organizadorId)
+                .select('id', 'codigo', 'organizador_id', 'rondas', 'created_at')
+
+            return response.json(rooms)
+        } catch (error) {
+            console.error(error)
+            return response.status(500).json({ error: 'Error al obtener las salas' })
+        }
     }
-  }
 
-    
-     public async getPlayersByRoom({ params, response }: HttpContextContract) {
+    public async getPlayersByRoom({ params, response }: HttpContextContract) {
         try {
-          const { roomId } = params
-          const players = await Player.query()
-            .where('room_id', roomId)
-            .select('user_id', 'created_at')
-    
-          return response.json(players)
+            const { roomId } = params
+
+            // Realiza la consulta con un JOIN para obtener el email del usuario
+            const players = await Database
+                .from('players')
+                .join('users', 'players.user_id', 'users.id')
+                .where('players.room_id', roomId)
+                .select('players.user_id', 'users.email as user_email', 'players.created_at')
+
+            return response.json(players)
         } catch (error) {
-          console.error(error)
-          return response.status(500).json({ error: 'Error fetching players' })
+            console.error(error)
+            return response.status(500).json({ error: 'Error fetching players' })
         }
-      }
-    
-      public async getWinnersByRoom({ params, response }: HttpContextContract) {
+    }
+
+    public async getWinnersByRoom({ params, response }: HttpContextContract) {
         try {
-          const { roomId } = params
-          const winners = await Winner.query() 
-            .where('room_id', roomId)
-            .select('id', 'room_id', 'ronda', 'user_id', 'created_at', 'updated_at')
-    
-          return response.json(winners)
+            const { roomId } = params
+
+            // Realiza la consulta con un JOIN para obtener el email del usuario
+            const winners = await Database
+                .from('winners')
+                .join('users', 'winners.user_id', 'users.id')
+                .where('winners.room_id', roomId)
+                .select('winners.id', 'winners.room_id', 'winners.ronda', 'users.email as user_email', 'winners.created_at', 'winners.updated_at')
+
+            return response.json(winners)
         } catch (error) {
-          console.error(error)
-          return response.status(500).json({ error: 'Error fetching winners' })
+            console.error(error)
+            return response.status(500).json({ error: 'Error fetching winners' })
         }
-      }
+    }
 
-
-
-      public async getRoomsWonByUser({ auth }: HttpContextContract) {
+    public async getRoomsWonByUser({ auth }: HttpContextContract) {
         // Obtén el ID del usuario loggeado
         const userId = auth.user?.id;
-    
+
         if (!userId) {
-          return { error: 'Usuario no autenticado' };
+            return { error: 'Usuario no autenticado' };
         }
-    
+
         // Consulta SQL para obtener las salas ganadas por el usuario
         const winners = await Database
-          .from('winners')
-          .join('rooms', 'winners.room_id', 'rooms.id')
-          .where('winners.user_id', userId)
-          .select('winners.id as winnerId', 'winners.room_id as roomId', 'rooms.codigo', 'winners.ronda', 'winners.created_at as createdAt', 'winners.updated_at as updatedAt');
-    
+            .from('winners')
+            .join('rooms', 'winners.room_id', 'rooms.id')
+            .where('winners.user_id', userId)
+            .select('winners.id as winnerId', 'winners.room_id as roomId', 'rooms.codigo', 'winners.ronda', 'winners.created_at as createdAt', 'winners.updated_at as updatedAt');
+
         return winners;
-      }
-    
+    }
 }
