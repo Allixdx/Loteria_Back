@@ -3,15 +3,9 @@ import Room from 'App/Models/Room';
 import Player from 'App/Models/Player';
 import Winner from 'App/Models/Winner';
 import Card from 'App/Models/Card';
-import Ws from 'App/Services/Ws';
 import User from 'App/Models/User';
 
 export default class RoomsController {
-  private cartasBarajadas: Card[] = [];
-  private indiceCarta: number = 0;
-  private cartasCantadas: Card[] = [];
-  private tablasJugadores: { [key: string]: Card[] } = {};
-
 
   public async index({ request, auth, response }: HttpContextContract) {
     const { roomId } = request.only(['roomId']);
@@ -91,21 +85,6 @@ export default class RoomsController {
     room.rondas += 1;
     await room.save();
     return response.ok(room);
-  }
-
-  public async cantar({ request, response }: HttpContextContract) {
-    const { roomId } = request.only(['roomId']);
-    const room = await Room.findOrFail(roomId);
-
-    if (this.indiceCarta < this.cartasBarajadas.length) {
-      const cartaActual = this.cartasBarajadas[this.indiceCarta];
-      this.indiceCarta++;
-      this.cartasCantadas.push(cartaActual); // Agrega la carta a las cantadas
-
-      Ws.io.to(room.codigo).emit('cartaCantada', cartaActual);
-      return response.ok(cartaActual);
-    }
-    return response.badRequest('No hay más cartas');
   }
 
   public async announceWin({ request, response }: HttpContextContract) {

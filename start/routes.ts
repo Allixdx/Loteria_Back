@@ -14,7 +14,13 @@ Route.group(() => {
   Route.get('/index', 'RoomsController.index');
   Route.get('/cartas', 'RoomsController.obtenerCartas');
 
-  
+
+
+  Route.get('/rooms/createdby', 'AuthController.getRoomsByOrganizador')
+  Route.get('/players/:roomId', 'AuthController.getPlayersByRoom')
+  Route.get('/winners/:roomId', 'AuthController.getWinnersByRoom')
+
+
   Route.post('/rooms', 'RoomsController.create'); // Crear sala
   Route.post('/rooms/join', 'RoomsController.join'); // Unirse a sala
   Route.post('/rooms/start', 'RoomsController.start'); // Iniciar partida
